@@ -13,18 +13,25 @@ import javax.microedition.khronos.opengles.GL10;
 import android.content.Context;
 import android.graphics.Point;
 import android.graphics.SurfaceTexture;
+import android.hardware.Camera;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.util.AttributeSet;
+import android.util.Log;
 
 /**
  * Description:
  */
 public class CameraView extends GLSurfaceView implements GLSurfaceView.Renderer {
 
+    private String TAG = "CameraView HAHAHA";
+
     private KitkatCamera mCamera2;
     private CameraDrawer mCameraDrawer;
-    private int cameraId=1;
+
+    // 目前卓宇板子的cameraid是0
+    private int cameraId=0;
+//    private int cameraId=1;
 
     private Runnable mRunnable;
 
@@ -43,6 +50,17 @@ public class CameraView extends GLSurfaceView implements GLSurfaceView.Renderer 
         setRenderMode(RENDERMODE_WHEN_DIRTY);
         mCamera2=new KitkatCamera();
         mCameraDrawer=new CameraDrawer(getResources());
+
+        int numberOfCameras = Camera.getNumberOfCameras();
+
+        // 测试一下摄像头的cameraid， 找最大的那个
+        for (int i = 0; i < numberOfCameras; i++) {
+            Camera.CameraInfo info = new Camera.CameraInfo();
+            Camera.getCameraInfo(i, info);
+            String cameraFacing = info.facing == Camera.CameraInfo.CAMERA_FACING_FRONT ? "Front" : "Back";
+            Log.d(TAG, "Camera ID: " + i + ", Camera Facing: " + cameraFacing);
+            cameraId = i;
+        }
     }
 
     @Override

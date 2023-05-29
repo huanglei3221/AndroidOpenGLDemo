@@ -36,9 +36,8 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.HandlerThread;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.annotation.RequiresApi;
+
+import android.util.Log;
 import android.util.Size;
 import android.view.Surface;
 import android.view.SurfaceHolder;
@@ -56,11 +55,17 @@ import edu.wuwang.opengl.utils.PermissionUtils;
 
 import static android.hardware.camera2.CameraDevice.TEMPLATE_PREVIEW;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
+
 
 /**
  * Description:
  */
 public class Camera2Activity extends BaseActivity implements FrameCallback {
+
+    private String TAG = "Camera2Activity";
 
     private SurfaceView mSurfaceView;
     private TextureController mController;
@@ -302,6 +307,17 @@ public class Camera2Activity extends BaseActivity implements FrameCallback {
                     mDevice.close();
                     mDevice=null;
                 }
+
+                // 测试一下摄像头的cameraid， 找最大的那个
+                int numberOfCameras = Camera.getNumberOfCameras();
+                for (int i = 0; i < numberOfCameras; i++) {
+                    Camera.CameraInfo info = new Camera.CameraInfo();
+                    Camera.getCameraInfo(i, info);
+                    String cameraFacing = info.facing == Camera.CameraInfo.CAMERA_FACING_FRONT ? "Front" : "Back";
+                    Log.d(TAG, "Camera ID: " + i + ", Camera Facing: " + cameraFacing);
+                    cameraId = i;
+                }
+
                 CameraCharacteristics c=mCameraManager.getCameraCharacteristics(cameraId+"");
                 StreamConfigurationMap map=c.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
                 Size[] sizes=map.getOutputSizes(SurfaceHolder.class);
